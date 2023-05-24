@@ -35,7 +35,7 @@ public class Exito extends JDialog {
 	}
 
 	/**
-	 * Create the dialog.
+	 * Create the dialog
 	 */
 	public Exito() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Exito.class.getResource("/imagenes/aH-40px.png")));

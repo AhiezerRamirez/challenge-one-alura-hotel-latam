@@ -30,7 +30,7 @@ public class MenuUsuario extends JFrame {
 	private JLabel labelRegistro;
 
 	/**
-	 * Launch the application.
+	 * Launch the application
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
