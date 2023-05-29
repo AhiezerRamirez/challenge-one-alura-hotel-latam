@@ -10,6 +10,10 @@ import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JTextField;
+
+import com.alura.hotel.controller.ReservationController;
+import com.alura.hotel.modelo.Reservation;
+import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 import java.awt.Font;
 import javax.swing.JComboBox;
@@ -19,6 +23,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.Toolkit;
 import java.beans.PropertyChangeListener;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.beans.PropertyChangeEvent;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
@@ -36,6 +46,8 @@ public class ReservasView extends JFrame {
 	int xMouse, yMouse;
 	private JLabel labelExit;
 	private JLabel labelAtras;
+	private final Long tarifa = 160l;
+	private ReservationController reservationController;
 
 	/**
 	 * Launch the application.
@@ -58,6 +70,9 @@ public class ReservasView extends JFrame {
 	 */
 	public ReservasView() {
 		super("Reserva");
+		
+		this.reservationController = new ReservationController();
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ReservasView.class.getResource("/imagenes/aH-40px.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 560);
@@ -264,6 +279,21 @@ public class ReservasView extends JFrame {
 		txtFechaSalida.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				//Activa el evento, después del usuario seleccionar las fechas se debe calcular el valor de la reserva
+				
+				if(txtFechaEntrada.getDate() != null && txtFechaSalida.getDate() != null) {
+					Long diasDeReservacion = (calcularDiasReserva(txtFechaEntrada,txtFechaSalida));
+					if (diasDeReservacion > 0) {
+						txtValor.setText(Long.toString(cacularValorTotalReserva(diasDeReservacion, tarifa)));
+					}else {
+						JOptionPane.showMessageDialog(new JFrame(), "La fecha de salida debe ser mayor a la fecha de entrada", 
+								"Erro de fecha", JOptionPane.ERROR_MESSAGE);
+						Date antes = txtFechaEntrada.getDate();
+						Date despues = txtFechaSalida.getDate();
+						txtFechaEntrada.setDate(despues);
+						txtFechaSalida.setDate(antes);
+					}
+				}
+			
 			}
 		});
 		txtFechaSalida.setDateFormatString("yyyy-MM-dd");
@@ -297,6 +327,7 @@ public class ReservasView extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (ReservasView.txtFechaEntrada.getDate() != null && ReservasView.txtFechaSalida.getDate() != null) {		
 					RegistroHuesped registro = new RegistroHuesped();
+					reservationController.saveReservations(new Reservation(txtFechaEntrada.getDate(), txtFechaSalida.getDate(), Long.parseLong(txtValor.getText()), txtFormaPago.getSelectedItem().toString()));
 					registro.setVisible(true);
 				} else {
 					JOptionPane.showMessageDialog(null, "Debes llenar todos los campos.");
@@ -312,15 +343,26 @@ public class ReservasView extends JFrame {
 
 	}
 		
+	private Long cacularValorTotalReserva(Long dias, Long tarifa) {
+		return dias*tarifa;
+	}
+	
+	//código para calcular los días que se va a quedar
+	private Long calcularDiasReserva(JDateChooser caendario1, JDateChooser caendario2) {
+		LocalDate fecha1 = caendario1.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		LocalDate fecha2 = caendario2.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		return ChronoUnit.DAYS.between(fecha1, fecha2);
+	}
+	
 	//Código que permite mover la ventana por la pantalla según la posición de "x" y "y"	
-	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
+ 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
 	        xMouse = evt.getX();
 	        yMouse = evt.getY();
 	    }
 
-	    private void headerMouseDragged(java.awt.event.MouseEvent evt) {
+	 private void headerMouseDragged(java.awt.event.MouseEvent evt) {
 	        int x = evt.getXOnScreen();
 	        int y = evt.getYOnScreen();
 	        this.setLocation(x - xMouse, y - yMouse);
-}
+	 }
 }
