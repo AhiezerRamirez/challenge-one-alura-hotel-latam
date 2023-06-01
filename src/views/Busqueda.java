@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
@@ -254,7 +255,21 @@ public class Busqueda extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(panel.getSelectedIndex() == 0) {
-					JOptionPane.showMessageDialog(null, "Selecionó tabla reserva.");
+					boolean isANumber = isNumeric(txtBuscar.getText());
+					if(txtBuscar.getText().isBlank()) {
+						vaciarTablaReservas();
+						fillReservationTable();
+					}else if(!isANumber) {
+						JOptionPane.showMessageDialog(null, "Utilize el número de reserva para buscar");
+						vaciarTablaReservas();
+						fillReservationTable();
+					}else {
+						boolean isRowFound = buscarReserva(txtBuscar.getText());
+						if(!isRowFound) {
+							JOptionPane.showMessageDialog(null, "No hay coincidencias");
+							fillReservationTable();
+						}
+					}
 				}
 				
 			}
@@ -277,15 +292,17 @@ public class Busqueda extends JFrame {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row = tbReservas.getSelectedRow();
-				String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
-				String fechaEntrada= tbReservas.getModel().getValueAt(row, 1).toString();
-				String fechaSalida = tbReservas.getModel().getValueAt(row, 2).toString();
-				String total = tbReservas.getModel().getValueAt(row, 3).toString();
-				String metodoPago = tbReservas.getModel().getValueAt(row, 4).toString();
-				editarReservacion(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
-				
-				System.out.println("Seleccionó el ID: "+idReservation);
+				if(panel.getSelectedIndex() == 0) {
+					int row = tbReservas.getSelectedRow();
+					String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
+					String fechaEntrada= tbReservas.getModel().getValueAt(row, 1).toString();
+					String fechaSalida = tbReservas.getModel().getValueAt(row, 2).toString();
+					String total = tbReservas.getModel().getValueAt(row, 3).toString();
+					String metodoPago = tbReservas.getModel().getValueAt(row, 4).toString();
+					editarReservacion(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
+					
+					System.out.println("Seleccionó el ID: "+idReservation);
+				}
 			}
 		});
 		
@@ -306,10 +323,12 @@ public class Busqueda extends JFrame {
 		btnEliminar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row = tbReservas.getSelectedRow();
-				String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
-				reservationController.deleteReservation(idReservation);
-				modelo.removeRow(row);;
+				if(panel.getSelectedIndex() == 0) {
+					int row = tbReservas.getSelectedRow();
+					String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
+					reservationController.deleteReservation(idReservation);
+					modelo.removeRow(row);
+				}
 			}
 		});
 		
@@ -335,6 +354,37 @@ public class Busqueda extends JFrame {
 		this.reservationController.editReservation(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
 	}
 	
+	private void vaciarTablaReservas() {
+		int rows = this.modelo.getRowCount()-1;
+		for(int i = rows; i >= 0; i--) {
+			this.modelo.removeRow(i);
+		}
+	}
+	
+	private boolean buscarReserva(String parametro) {
+		int filas = tbReservas.getRowCount()-1;
+		Object[] filaCorrecta=null;
+		for (int i = filas; i >= 0 ; i--) {
+			System.out.println(tbReservas.getModel().getValueAt(i, 0).toString());
+			if(tbReservas.getModel().getValueAt(i, 0).toString().equals(parametro)) {
+				filaCorrecta = new Object[] {
+						tbReservas.getModel().getValueAt(i, 0).toString(),
+						tbReservas.getModel().getValueAt(i, 1).toString(),
+						tbReservas.getModel().getValueAt(i, 2).toString(),
+						tbReservas.getModel().getValueAt(i, 3).toString(),
+						tbReservas.getModel().getValueAt(i, 4).toString(),
+				};
+				System.out.println(filaCorrecta);
+			}
+			this.modelo.removeRow(i);
+		}
+		if(filaCorrecta != null) {
+			this.modelo.addRow(filaCorrecta);
+			return true;
+		}
+		return false;
+	}
+	
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
 	        xMouse = evt.getX();
@@ -345,5 +395,17 @@ public class Busqueda extends JFrame {
 	        int x = evt.getXOnScreen();
 	        int y = evt.getYOnScreen();
 	        this.setLocation(x - xMouse, y - yMouse);
-}
+	    }
+	    
+	    public  boolean isNumeric(String strNum) {
+	        if (strNum == null) {
+	            return false;
+	        }
+	        try {
+	            int d = Integer.parseInt(strNum);
+	        } catch (NumberFormatException nfe) {
+	            return false;
+	        }
+	        return true;
+	    }
 }
