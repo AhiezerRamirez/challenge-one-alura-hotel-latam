@@ -6,6 +6,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import com.alura.hotel.controller.ReservationController;
+import com.alura.hotel.modelo.Reservation;
+
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -13,8 +17,11 @@ import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.SystemColor;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTabbedPane;
@@ -24,6 +31,7 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 
 @SuppressWarnings("serial")
@@ -38,6 +46,8 @@ public class Busqueda extends JFrame {
 	private JLabel labelAtras;
 	private JLabel labelExit;
 	int xMouse, yMouse;
+	
+	private ReservationController reservationController;
 
 	/**
 	 * Launch the application.
@@ -59,6 +69,7 @@ public class Busqueda extends JFrame {
 	 * Create the frame.
 	 */
 	public Busqueda() {
+		this.reservationController = new ReservationController();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Busqueda.class.getResource("/imagenes/lupa2.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 571);
@@ -92,7 +103,13 @@ public class Busqueda extends JFrame {
 		
 		
 		
-		tbReservas = new JTable();
+		tbReservas = new JTable(){
+		    @Override
+		    public boolean isCellEditable(int row, int column) {
+		        return column==0 ? false : true;
+		    }
+		};
+				
 		tbReservas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tbReservas.setFont(new Font("Roboto", Font.PLAIN, 16));
 		modelo = (DefaultTableModel) tbReservas.getModel();
@@ -101,6 +118,7 @@ public class Busqueda extends JFrame {
 		modelo.addColumn("Fecha Check Out");
 		modelo.addColumn("Valor");
 		modelo.addColumn("Forma de Pago");
+		
 		JScrollPane scroll_table = new JScrollPane(tbReservas);
 		panel.addTab("Reservas", new ImageIcon(Busqueda.class.getResource("/imagenes/reservado.png")), scroll_table, null);
 		scroll_table.setVisible(true);
@@ -232,6 +250,16 @@ public class Busqueda extends JFrame {
 		lblBuscar.setForeground(Color.WHITE);
 		lblBuscar.setFont(new Font("Roboto", Font.PLAIN, 18));
 		
+		btnbuscar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(panel.getSelectedIndex() == 0) {
+					JOptionPane.showMessageDialog(null, "Selecionó tabla reserva.");
+				}
+				
+			}
+		});
+		
 		JPanel btnEditar = new JPanel();
 		btnEditar.setLayout(null);
 		btnEditar.setBackground(new Color(12, 138, 199));
@@ -245,6 +273,21 @@ public class Busqueda extends JFrame {
 		lblEditar.setFont(new Font("Roboto", Font.PLAIN, 18));
 		lblEditar.setBounds(0, 0, 122, 35);
 		btnEditar.add(lblEditar);
+		btnEditar.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row = tbReservas.getSelectedRow();
+				String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
+				String fechaEntrada= tbReservas.getModel().getValueAt(row, 1).toString();
+				String fechaSalida = tbReservas.getModel().getValueAt(row, 2).toString();
+				String total = tbReservas.getModel().getValueAt(row, 3).toString();
+				String metodoPago = tbReservas.getModel().getValueAt(row, 4).toString();
+				editarReservacion(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
+				
+				System.out.println("Seleccionó el ID: "+idReservation);
+			}
+		});
 		
 		JPanel btnEliminar = new JPanel();
 		btnEliminar.setLayout(null);
@@ -260,6 +303,36 @@ public class Busqueda extends JFrame {
 		lblEliminar.setBounds(0, 0, 122, 35);
 		btnEliminar.add(lblEliminar);
 		setResizable(false);
+		btnEliminar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row = tbReservas.getSelectedRow();
+				String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
+				reservationController.deleteReservation(idReservation);
+				modelo.removeRow(row);;
+			}
+		});
+		
+		fillReservationTable();
+	}
+	
+	public void fillReservationTable() {
+		List<Reservation> reservations = this.reservationController.getReservationList();
+		for (Reservation reservation : reservations) {
+			this.modelo.addRow(new Object[] {
+					reservation.getId(),
+					reservation.getCheckInDate(),
+					reservation.getCheckOutDate(),
+					reservation.getTotal(),
+					reservation.getPaymentMethod()
+			});
+		}
+		System.out.println("Sí se ingresaron las columnas de reservaciones");
+	}
+	
+	private void editarReservacion(String idReservation, String fechaEntrada, 
+			String fechaSalida, String total, String metodoPago) {
+		this.reservationController.editReservation(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
 	}
 	
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"

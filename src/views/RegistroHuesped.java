@@ -1,15 +1,20 @@
 package views;
 
-import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
+
+
+import com.alura.hotel.controller.ReservationController;
+import com.alura.hotel.modelo.Guest;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.ImageIcon;
 import java.awt.SystemColor;
@@ -17,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.Format;
+import java.util.Date;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
@@ -34,16 +40,16 @@ public class RegistroHuesped extends JFrame {
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
-
+	
 	/**
 	 * Launch the application.
-	 */
+	 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegistroHuesped frame = new RegistroHuesped();
-					frame.setVisible(true);
+					//RegistroHuesped frame = new RegistroHuesped(reservationController);
+					//frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -54,7 +60,7 @@ public class RegistroHuesped extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public RegistroHuesped() {
+	public RegistroHuesped(ReservationController reservation_Controller) {
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHuesped.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -206,6 +212,7 @@ public class RegistroHuesped extends JFrame {
 		txtNreserva.setColumns(10);
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		txtNreserva.disable();
 		contentPane.add(txtNreserva);
 		
 		JSeparator separator_1_2 = new JSeparator();
@@ -263,6 +270,29 @@ public class RegistroHuesped extends JFrame {
 		labelGuardar.setBounds(0, 0, 122, 35);
 		btnguardar.add(labelGuardar);
 		
+		btnguardar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("No se guardó");
+				/*
+				if(isAllFilled()) {
+					reservation_Controller.saveGuests(new Guest(txtNombre.getText(), 
+							txtApellido.getText(), txtFechaN.getDate(), 
+							txtNacionalidad.getSelectedItem().toString(), 
+							Long.valueOf(txtTelefono.getText()), 
+							Long.valueOf(txtNreserva.getText())));
+
+				}
+				*/
+				
+				MenuUsuario menuUsuario = new MenuUsuario();
+				menuUsuario.setVisible(true);
+				dispose();
+			}
+										
+		});
+		
+		
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 489, 634);
 		panel.setBackground(new Color(12, 138, 199));
@@ -286,6 +316,7 @@ public class RegistroHuesped extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				MenuPrincipal principal = new MenuPrincipal();
+				System.out.println("Entró al botón que no sé que es");
 				principal.setVisible(true);
 				dispose();
 			}
@@ -311,6 +342,35 @@ public class RegistroHuesped extends JFrame {
 		labelExit.setFont(new Font("Roboto", Font.PLAIN, 18));
 	}
 	
+	private boolean isAllFilled() {
+		if(txtNombre.getText().equals("")) {
+			JOptionPane.showMessageDialog(null, "Nombre no puede estar vacío.");
+			return false;
+		}
+		if(txtApellido.getText().equals("")) {
+			JOptionPane.showMessageDialog(null, "Apellido no puede estar vacío.");
+			return false;
+		}
+		if(txtFechaN.getDate() == null) {
+			if(txtFechaN.getDate().after(new Date())) {
+				JOptionPane.showMessageDialog(null, "Fecha incorrecta.");
+				return false;
+			}
+				
+			return false;
+		}
+		if(txtTelefono.getText().equals("")) {
+			JOptionPane.showMessageDialog(null, "Número incorrecto.");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	//coloca el ID de reserva en el lable adecuado.
+	public void setReservationIDLabel(int id) {
+		this.txtNreserva.setText(String.valueOf(id));
+	}
 	
 	//Código que permite mover la ventana por la pantalla según la posición de "x" y "y"	
 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {

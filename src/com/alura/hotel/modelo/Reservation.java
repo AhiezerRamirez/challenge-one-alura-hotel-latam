@@ -17,6 +17,15 @@ public class Reservation {
 		this.total = total;
 		this.paymentMethod = paymentMethod;
 	}
+	
+	public Reservation(int id,Date checkInDate, Date checkOutDate, Long total, String paymentMethod) {
+		this.id = id;
+		this.checkInDate = new Date(checkInDate.getDate());
+		this.checkOutDate = new Date(checkOutDate.getDate());
+		this.total = total;
+		this.paymentMethod = paymentMethod;
+	}
+	
 	public Date getCheckInDate() {
 		return checkInDate;
 	}
@@ -46,6 +55,8 @@ public class Reservation {
 		
 	}
 	
-	
+	public int getId() {
+		return this.id;
+	}
 	
 }

@@ -16,7 +16,7 @@ private Connection dataBaseConnection;
 		this.dataBaseConnection = con;
 	}
 	
-	public void guardar(Guest guest, Long reservationID) {
+	public void guardar(Guest guest) {
 		
 		PreparedStatement statement;
 		try{
@@ -31,7 +31,7 @@ private Connection dataBaseConnection;
 				statement.setDate(3, guest.getDetaOfBirth());
 				statement.setString(4, guest.getNationality());
 				statement.setLong(5, guest.getPhoneNumber());
-				statement.setLong(6, reservationID);
+				statement.setLong(6, guest.getReservationId());
 				
 				statement.execute();
 				

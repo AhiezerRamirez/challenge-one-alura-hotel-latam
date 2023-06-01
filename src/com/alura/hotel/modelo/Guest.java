@@ -11,12 +11,12 @@ public class Guest {
 	private Long phoneNumber;
 	private Long reservationId;
 	
-	public Guest(String firstName, String lastName, Date detaOfBirth, String nationality, Long phoneNumber,
+	public Guest(String firstName, String lastName, java.util.Date detaOfBirth, String nationality, Long phoneNumber,
 			Long reservationId) {
 
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.detaOfBirth = detaOfBirth;
+		this.detaOfBirth = new Date(detaOfBirth.getDate());
 		this.nationality = nationality;
 		this.phoneNumber = phoneNumber;
 		this.reservationId = reservationId;
