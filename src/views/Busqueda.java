@@ -8,6 +8,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import com.alura.hotel.controller.ReservationController;
+import com.alura.hotel.modelo.Guest;
 import com.alura.hotel.modelo.Reservation;
 
 import javax.swing.JTable;
@@ -254,24 +255,33 @@ public class Busqueda extends JFrame {
 		btnbuscar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if(panel.getSelectedIndex() == 0) {
-					boolean isANumber = isNumeric(txtBuscar.getText());
-					if(txtBuscar.getText().isBlank()) {
-						vaciarTablaReservas();
-						fillReservationTable();
-					}else if(!isANumber) {
-						JOptionPane.showMessageDialog(null, "Utilize el número de reserva para buscar");
-						vaciarTablaReservas();
-						fillReservationTable();
-					}else {
-						boolean isRowFound = buscarReserva(txtBuscar.getText());
-						if(!isRowFound) {
-							JOptionPane.showMessageDialog(null, "No hay coincidencias");
-							fillReservationTable();
-						}
-					}
+				
+				if(txtBuscar.getText().isBlank()) {
+					vaciarTablaReservas();
+					llenarTablaReservaciones();
+					return;
 				}
 				
+				if(panel.getSelectedIndex() == 0) {
+					boolean isANumber = isNumeric(txtBuscar.getText());
+					if(!isANumber) {
+						JOptionPane.showMessageDialog(null, "Utilize el número de reserva para buscar");
+						vaciarTablaReservas();
+						llenarTablaReservaciones();
+						return;
+					}
+					boolean isRowFound = buscarReserva(txtBuscar.getText());
+					if(!isRowFound) {
+						JOptionPane.showMessageDialog(null, "No hay coincidencias");
+						llenarTablaReservaciones();
+					}
+				}else if(panel.getSelectedIndex() == 1) {
+					boolean isRowFound = buscarHuesped(txtBuscar.getText());
+					if(!isRowFound) {
+						JOptionPane.showMessageDialog(null, "No hay coincidencias");
+						llenarTablaHuespedes();
+					}
+				}
 			}
 		});
 		
@@ -294,14 +304,32 @@ public class Busqueda extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if(panel.getSelectedIndex() == 0) {
 					int row = tbReservas.getSelectedRow();
-					String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
-					String fechaEntrada= tbReservas.getModel().getValueAt(row, 1).toString();
-					String fechaSalida = tbReservas.getModel().getValueAt(row, 2).toString();
-					String total = tbReservas.getModel().getValueAt(row, 3).toString();
-					String metodoPago = tbReservas.getModel().getValueAt(row, 4).toString();
-					editarReservacion(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
-					
-					System.out.println("Seleccionó el ID: "+idReservation);
+					if(row >=0) {
+						String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
+						String fechaEntrada= tbReservas.getModel().getValueAt(row, 1).toString();
+						String fechaSalida = tbReservas.getModel().getValueAt(row, 2).toString();
+						String total = tbReservas.getModel().getValueAt(row, 3).toString();
+						String metodoPago = tbReservas.getModel().getValueAt(row, 4).toString();
+						editarReservacion(idReservation, fechaEntrada, fechaSalida, total, metodoPago);
+						
+						System.out.println("Seleccionó el ID: "+idReservation);
+					}else {
+						JOptionPane.showMessageDialog(null, "Seleccione y modifique la reseva");
+					}
+				}else if(panel.getSelectedIndex()==1) {
+					int row = tbHuespedes.getSelectedRow();
+					System.out.println(row);
+					if(row >= 0) {
+						String idHuesped=tbHuespedes.getModel().getValueAt(row, 0).toString();
+						String nombre=tbHuespedes.getModel().getValueAt(row, 1).toString();
+						String apellido=tbHuespedes.getModel().getValueAt(row, 2).toString();
+						String nacimiento=tbHuespedes.getModel().getValueAt(row, 3).toString();
+						String nacionalidad=tbHuespedes.getModel().getValueAt(row, 4).toString();
+						String telefono=tbHuespedes.getModel().getValueAt(row, 5).toString();
+						String idReserva=tbHuespedes.getModel().getValueAt(row, 6).toString();
+						System.out.println(row + " Row " + telefono);
+						reservationController.editGuest(idHuesped, nombre, apellido, nacimiento, nacionalidad, telefono, idReserva);
+					}
 				}
 			}
 		});
@@ -325,17 +353,30 @@ public class Busqueda extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if(panel.getSelectedIndex() == 0) {
 					int row = tbReservas.getSelectedRow();
-					String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
-					reservationController.deleteReservation(idReservation);
-					modelo.removeRow(row);
+					System.out.println("Row: "+ row);
+					if(row >=0) {
+						String idReservation = tbReservas.getModel().getValueAt(row, 0).toString();
+						reservationController.deleteReservation(idReservation);
+						modelo.removeRow(row);
+					}else {
+						JOptionPane.showMessageDialog(null, "Seleccione una reserva a eliminar");
+					}
+				}else if(panel.getSelectedIndex() == 1) {
+					int row = tbHuespedes.getSelectedRow();
+					if(row >= 0) {
+						String idGuest= modeloHuesped.getValueAt(row, 0).toString();
+						reservationController.deleteGuest(idGuest);
+						modeloHuesped.removeRow(row);
+					}
 				}
 			}
 		});
 		
-		fillReservationTable();
+		llenarTablaReservaciones();
+		llenarTablaHuespedes();
 	}
 	
-	public void fillReservationTable() {
+	public void llenarTablaReservaciones() {
 		List<Reservation> reservations = this.reservationController.getReservationList();
 		for (Reservation reservation : reservations) {
 			this.modelo.addRow(new Object[] {
@@ -346,7 +387,21 @@ public class Busqueda extends JFrame {
 					reservation.getPaymentMethod()
 			});
 		}
-		System.out.println("Sí se ingresaron las columnas de reservaciones");
+	}
+	
+	public void llenarTablaHuespedes() {
+		List<Guest> guest = this.reservationController.getGuestList();
+		for (Guest guest2 : guest) {
+			this.modeloHuesped.addRow(new Object[] {
+					guest2.getId(),
+					guest2.getFirstName(),
+					guest2.getLastName(),
+					guest2.getDetaOfBirth(),
+					guest2.getNationality(),
+					guest2.getPhoneNumber(),
+					guest2.getReservationId(),
+			});
+		}
 	}
 	
 	private void editarReservacion(String idReservation, String fechaEntrada, 
@@ -380,6 +435,30 @@ public class Busqueda extends JFrame {
 		}
 		if(filaCorrecta != null) {
 			this.modelo.addRow(filaCorrecta);
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean buscarHuesped(String parametro) {
+		int filas = tbHuespedes.getModel().getRowCount()-1;
+		Object[] filaCorrecta=null;
+		for(int i = filas; i >= 0 ; i--) {
+			if(modeloHuesped.getValueAt(i, 2).toString().equals(parametro)) {
+				filaCorrecta = new Object[] {
+						modeloHuesped.getValueAt(i, 0).toString(),
+						modeloHuesped.getValueAt(i, 1).toString(),
+						modeloHuesped.getValueAt(i, 2).toString(),
+						modeloHuesped.getValueAt(i, 3).toString(),
+						modeloHuesped.getValueAt(i, 4).toString(),
+						modeloHuesped.getValueAt(i, 5).toString(),
+						modeloHuesped.getValueAt(i, 6).toString()
+				};
+			}
+			modeloHuesped.removeRow(i);
+		}
+		if(filaCorrecta !=null) {
+			this.modeloHuesped.addRow(filaCorrecta);
 			return true;
 		}
 		return false;

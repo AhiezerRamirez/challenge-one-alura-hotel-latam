@@ -24,8 +24,8 @@ public class ReservationDao {
 		PreparedStatement statement;
 		try {
 			statement = this.dataBaseConnection.prepareStatement("INSERT INTO reservations"
-					+ "(checkInDate,checkOutdate, total, paymentMethod) "
-					+ " VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+					+ "(checkInDate,checkOutdate, total, paymentMethod, deleted) "
+					+ " VALUES (?,?,?,?, false)", Statement.RETURN_GENERATED_KEYS);
 			
 			
 			try(statement){
@@ -42,7 +42,6 @@ public class ReservationDao {
 					while(resultSet.next()) {
 						reservation.setId(resultSet.getInt(1));
 						
-						System.out.println("Se agregó el producto: "+ reservation.getTotal());
 					}
 					
 				}
@@ -100,7 +99,6 @@ public class ReservationDao {
                 statement.execute();
 
                 int updateCount = statement.getUpdateCount();
-                System.out.print("se editó de reservas" + updateCount);
             }
 		}catch(SQLException e) {
 			e.printStackTrace();
@@ -116,7 +114,6 @@ public class ReservationDao {
 	                statement.execute();
 
 	                int updateCount = statement.getUpdateCount();
-	                System.out.println("Se eliminó el id: " + updateCount);
 	            }
 	        } catch (SQLException e) {
 	            throw new RuntimeException(e);

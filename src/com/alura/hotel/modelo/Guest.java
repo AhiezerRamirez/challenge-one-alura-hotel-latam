@@ -22,6 +22,18 @@ public class Guest {
 		this.reservationId = reservationId;
 	}
 
+	public Guest(Long id, String firstName, String lastName, java.util.Date detaOfBirth, String nationality, Long phoneNumber,
+			Long reservationId) {
+
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.detaOfBirth = new Date(detaOfBirth.getDate());
+		this.nationality = nationality;
+		this.phoneNumber = phoneNumber;
+		this.reservationId = reservationId;
+	}
+	
 	public Long getId() {
 		return id;
 	}

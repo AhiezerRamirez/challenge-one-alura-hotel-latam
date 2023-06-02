@@ -32,13 +32,31 @@ public class ReservationController {
 		return this.reservationDao.getReservationList();
 	}
 	
+	public List<Guest> getGuestList(){
+		return this.guestDao.getGuestList();
+	}
+	
 	public void editReservation(String id, String checkInDate, String checkOutDate, String total, String paymentMethod) {
 		Date date1 = Date.valueOf(checkInDate);
 		Date date2 = Date.valueOf(checkOutDate);
 		this.reservationDao.edit(id, date1, date2, Long.valueOf(total), paymentMethod);
 	}
+	
+	public void editGuest(String id, String name, String lastName, String dateOfBrith, String nationality, String phoneNumber,
+			String reservationID) {
+		
+		Long id1 = Long.valueOf(id);
+		Date date = Date.valueOf(dateOfBrith);
+		Long phone = Long.valueOf(phoneNumber);
+		Long ri = Long.valueOf(reservationID);
+		this.guestDao.edit(id1, name, lastName, date, nationality, phone, ri);
+	}
 
 	public void deleteReservation(String id) {
 		this.reservationDao.delete(Integer.valueOf(id));
+	}
+	
+	public void deleteGuest(String id) {
+		this.guestDao.delete(Integer.valueOf(id));
 	}
 }

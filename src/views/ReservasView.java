@@ -327,9 +327,9 @@ public class ReservasView extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (ReservasView.txtFechaEntrada.getDate() != null && ReservasView.txtFechaSalida.getDate() != null) {		
 					RegistroHuesped registro = new RegistroHuesped(reservationController);
-					//Reservation reservation = new Reservation(txtFechaEntrada.getDate(), txtFechaSalida.getDate(), Long.parseLong(txtValor.getText()), txtFormaPago.getSelectedItem().toString());
-					//reservationController.saveReservations(reservation);
-					//registro.setReservationIDLabel(reservation.getId());
+					Reservation reservation = new Reservation(txtFechaEntrada.getDate(), txtFechaSalida.getDate(), Long.parseLong(txtValor.getText()), txtFormaPago.getSelectedItem().toString());
+					reservationController.saveReservations(reservation);
+					registro.setReservationIDLabel(reservation.getId());
 					registro.setVisible(true);
 					dispose();
 				} else {

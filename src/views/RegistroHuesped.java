@@ -273,8 +273,7 @@ public class RegistroHuesped extends JFrame {
 		btnguardar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println("No se guardó");
-				/*
+				
 				if(isAllFilled()) {
 					reservation_Controller.saveGuests(new Guest(txtNombre.getText(), 
 							txtApellido.getText(), txtFechaN.getDate(), 
@@ -283,10 +282,10 @@ public class RegistroHuesped extends JFrame {
 							Long.valueOf(txtNreserva.getText())));
 
 				}
-				*/
 				
-				MenuUsuario menuUsuario = new MenuUsuario();
-				menuUsuario.setVisible(true);
+				
+				Exito menuExito = new Exito();
+				menuExito.setVisible(true);
 				dispose();
 			}
 										
@@ -316,7 +315,6 @@ public class RegistroHuesped extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				MenuPrincipal principal = new MenuPrincipal();
-				System.out.println("Entró al botón que no sé que es");
 				principal.setVisible(true);
 				dispose();
 			}
